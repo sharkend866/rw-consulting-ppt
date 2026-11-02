@@ -2,6 +2,7 @@
 增加一行
 
 再增加一行
+
 这个仓库包含两个互相独立的 Codex Skills：
 
 - `rw-consulting-ppt`：把行业报告、会议纪要、访谈笔记和半成品 bullet，转成 `proof-object-first` 的图片版咨询 PPT。
