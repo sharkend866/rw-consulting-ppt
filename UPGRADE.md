@@ -1,15 +1,24 @@
-# 升级图片转可编辑 PPT Skill
+# 从 Codex 原版迁移到 Claude Code 版
 
-将以下指令复制给 Codex，即可备份旧版并安装新版：
+本仓库是 Codex 原版（Pikapika260214/rw-consulting-ppt）的 Claude Code 移植版，原版 `skills/` 目录已移除，替代品在 `claude-skills/`。
 
-```text
-请将我已安装的 ppt-to-editable 升级为新版 astralow-for-editable-ppt。
-从 https://github.com/Pikapika260214/rw-consulting-ppt 的 skills/astralow-for-editable-ppt 目录安装。
-先将旧 ppt-to-editable 备份到 Skill 搜索目录之外，再安装新版及缺失依赖。
-如果已安装新版，请更新，避免重复安装。保留历史 PPT 和输出文件，不要覆盖 rw-consulting-ppt。
-完成后检查新版名称、文件和依赖是否可用。
+## 迁移步骤
+
+1. 卸载已安装的 Codex skills：从 `~/.codex/skills/` 移除 `rw-consulting-ppt` 与 `astralow-for-editable-ppt`（先备份到其他位置再删）。
+2. 安装 Claude Code 版：
+
+```bash
+mkdir -p ~/.claude/skills
+ln -sfn "$PWD/claude-skills/rw-consulting-ppt" ~/.claude/skills/rw-consulting-ppt
+ln -sfn "$PWD/claude-skills/astralow-for-editable-ppt" ~/.claude/skills/astralow-for-editable-ppt
 ```
 
-新版调用名称为 `$astralow-for-editable-ppt`。如果当前会话未识别，请新开任务。不要只在 Skill 搜索目录内改名备份旧版，以免重复识别。
+3. 安装依赖：`pip install -r requirements.txt`；渲染预览需要 LibreOffice（可选）。
+4. 调用方式从 `$skill-name` 变为 `/skill-name`（`/rw-consulting-ppt`、`/astralow-for-editable-ppt`）。当前会话未识别时新开对话。
 
-新版逐页构建，不兼容旧 controller 命令；实际渲染验证需要 Windows PowerPoint。旧版可从 Git 历史取回，历史 PPT 与输出无需删除。
+## 行为差异（需知）
+
+- 页面渲染改为 HTML + 截图路线，不再依赖 Image2；配图需配置豆包 API Key（可选）。
+- 渲染预览为 LibreOffice headless，**不是 Office 验证**；最终验收用 WPS/PowerPoint 人工确认。
+- 原版 Windows PowerShell 渲染/编辑验证脚本已由 `verify_edit.py`（python-pptx 回路验证）替代。
+- 原版 Git 历史仍可回溯：`git log -- skills/` 或上游仓库。

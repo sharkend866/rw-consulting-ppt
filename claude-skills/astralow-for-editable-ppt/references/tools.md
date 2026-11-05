@@ -22,12 +22,14 @@ result = deck.finish()
 | `rect(x,y,w,h,fill,line,radius=False)` | 矩形或圆角矩形；返回原生 shape，可继续调整 |
 | `line(x1,y1,x2,y2,color,width,dash,arrow)` | `dash="dash"`；`arrow="start"/"end"/"both"` |
 | `crop(source_bbox,target_bbox=None)` | bbox 为 `(x,y,w,h)`，源区域必须在图内；默认原位放置，内部像素不可编辑 |
-| `finish(render=True)` | 写入 `deliverables/editable.pptx`、简短 JSON 报告；成功渲染时另有 `preview.png` 和 Office 验证记录 |
+| `finish(render=True)` | 写入 `deliverables/editable.pptx`、简短 JSON 报告；渲染成功时另有 `preview.png` 和 `render-verification.json` |
 
-所有绘图函数返回对象。字体应根据源图和本机可用字体选择；适配估算不自动修改字号、文字或布局。估算无法代替真实 PowerPoint 字体回退、自动换行、粗体和复杂排版的检查。
+所有绘图函数返回对象。字体应根据源图和本机可用字体选择；macOS 常用 PingFang SC（`/System/Library/Fonts/PingFang.ttc`）；适配估算不自动修改字号、文字或布局。估算无法代替真实 PowerPoint 字体回退、自动换行、粗体和复杂排版的检查。
+
+渲染说明（本移植版）：`finish(render=True)` 在 macOS 上自动用 **LibreOffice headless** 渲染预览（先找 `soffice` 命令，再找 `/Applications/LibreOffice.app/Contents/MacOS/soffice`），状态为 `libreoffice-ok`。LibreOffice 把 PPTX 转 PNG 时只渲染第一页——本 Skill 一次只处理一页，正好匹配。该预览用于排版质检，**不是 Office 验证**；最终验收请在 WPS 中打开确认。渲染失败时检查返回状态和报告中的原因；旧预览不能充当本次成功证据。
 
 直接使用 `deck.slide` / `deck.presentation` 可添加原生表格、图表、特殊形状和显式效果；这些对象不会在 `finish()` 时被批量清除主题样式。需要对新建直接对象去除意外继承效果时，显式调用 `deck.normalize_inherited_effects(shape)`，也可传对象列表；省略参数会处理当前页，含分组。它保留显式效果。
 
 `text(..., font_path="<字体文件>")` 可为宽度估算指定本机字体文件，run 也支持此字段；它不改变 PPT 的字体名称。对象统计含分组及其子对象；文字计数不是文字准确率或完整可编辑性证明。
 
-`finish(render=False)` 只构建，不能标为渲染通过。Office 不可用或失败时检查返回状态和报告中的原因；旧预览不能充当本次成功证据。渲染脚本随 Skill 附带，保留页面宽高比；它只关闭本次打开的文档。
+`finish(render=False)` 只构建，不能标为渲染通过。LibreOffice 不可用或失败时检查返回状态和报告中的原因；旧预览不能充当本次成功证据。渲染脚本随 Skill 附带，保留页面宽高比；它只关闭本次打开的文档。

@@ -43,7 +43,7 @@ Slide brief schema:
 - Avoid list: repeated claims, distracting metrics, generic cards, unnecessary process arrows, over-specified wireframes.
 - Output mode: image-only full-slide PNG generated through Image2-style full-slide generation, optionally packaged into image-only PPTX.
 
-RW Consulting PPT is the thinking, briefing, image-contract, and QA layer. It must not render slide pages with Python, Pillow, HTML, CSS, React, SVG, canvas, browser screenshots, native PowerPoint objects, or the Presentations plugin. If Image2-style full-slide generation or an equivalent full-slide image backend is unavailable, stop after briefs/prompts instead of switching to a code-rendered slide route.
+RW Consulting PPT is the thinking, briefing, page-contract, and QA layer. **本移植版**：页面由模型编写为完整 1920×1080 HTML（内联 SVG proof object），经 `scripts/render_slide.py` 截图为全页 PNG，再按需打包 image-only PPTX。它不把页面设计交给 python-pptx 图形或 Pillow 画布绘制；若 Playwright/Chrome 渲染不可用，停在 brief 阶段并告知用户，不降级为裸 HTML 线框交付。
 
 If the brief is weak, improve the brief before prompting the image model.
 

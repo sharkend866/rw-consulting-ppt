@@ -1,8 +1,9 @@
-# 发布检查
+# 发布检查（Claude Code 移植版）
 
-- [x] 新版 8 个文件与测试快照一致。
-- [x] 安装路径、调用名称和升级指令一致。
-- [x] 旧版备份在 Skill 搜索目录之外。
-- [x] 说明 PowerPoint 依赖、局部图片和逐页处理范围。
-- [x] 其他 Skill、assets 和示例保持不变。
-- [x] Skill 校验、13 个本地链接检查和原生 PPTX 构建/重读检查通过。
+- [x] `claude-skills/` 两个 skill 的 SKILL.md frontmatter（name/description）与调用名一致。
+- [x] 依赖声明与 README 一致：python-pptx、Pillow、playwright、certifi（requirements.txt）。
+- [x] 三条链路冒烟测试通过：HTML 渲染 + PPTX 打包（editableTextBodies=0）、图片转可编辑 + LibreOffice 预览、豆包配图（watermark: false）。
+- [x] 渲染/验证边界标注清楚：LibreOffice 预览 ≠ Office 验证，最终 WPS 人工验收。
+- [x] 配图水印约定写入 SKILL.md 与 README。
+- [x] 原版 `skills/` 已移除，README 内所有引用路径已更新为 `claude-skills/`。
+- [x] UPGRADE.md 说明 Codex → Claude Code 迁移步骤与行为差异。

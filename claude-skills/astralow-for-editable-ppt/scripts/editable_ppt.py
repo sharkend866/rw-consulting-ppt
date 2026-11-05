@@ -12,6 +12,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
@@ -81,6 +82,21 @@ def _font_for_estimate(
             candidates.append(r"C:\Windows\Fonts\simhei.ttf")
         elif "simsun" in normalized or "宋体" in normalized:
             candidates.append(r"C:\Windows\Fonts\simsun.ttc")
+    elif sys.platform == "darwin":
+        # macOS font mapping for width estimates. The font name written into
+        # the PPTX is unchanged; this only picks a local file for measuring.
+        if "pingfang" in normalized or "苹方" in normalized:
+            candidates.append("/System/Library/Fonts/PingFang.ttc")
+        elif "hiragino" in normalized or "冬青" in normalized or "黑体" in normalized:
+            candidates.append("/System/Library/Fonts/STHeiti Medium.ttc")
+            candidates.append("/System/Library/Fonts/Hiragino Sans GB.ttc")
+        elif "songti" in normalized or "宋体" in normalized or "simsun" in normalized:
+            candidates.append("/System/Library/Fonts/Supplemental/Songti.ttc")
+        elif "yahei" in normalized or "microsoft yahei" in normalized:
+            # Microsoft YaHei does not exist on macOS; measure with PingFang SC.
+            candidates.append("/System/Library/Fonts/PingFang.ttc")
+        elif "arial" in normalized:
+            candidates.append("/System/Library/Fonts/Supplemental/Arial.ttf")
     # Pillow accepts a font file path here.  A font family name is retained as
     # a best-effort candidate for environments that resolve it locally.
     candidates.extend([font_name, "Arial"])
@@ -458,8 +474,8 @@ class Deck:
     ) -> dict[str, Any]:
         renderer: dict[str, Any] = {"script": Path(OFFICE_RENDERER).name, "status": "unavailable"}
         if os.name != "nt":
-            renderer["message"] = "Native Windows PowerPoint rendering is unavailable outside Windows."
-            return renderer
+            # Claude Code port: outside Windows, render with headless LibreOffice.
+            return self._render_libreoffice(pptx_path, preview_path, verification_path, renderer)
         renderer_script = Path(OFFICE_RENDERER)
         if not renderer_script.exists():
             renderer["message"] = "Bundled native Windows Office renderer was not found."
@@ -534,6 +550,106 @@ class Deck:
                 renderer["status"] = "ok"
         return renderer
 
+    def _render_libreoffice(
+        self,
+        pptx_path: Path,
+        preview_path: Path,
+        verification_path: Path,
+        renderer: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Render the single-slide PPTX with headless LibreOffice.
+
+        This is a layout preview only. It is NOT Office rendering: font
+        metrics, theme handling, and line breaking can differ from PowerPoint
+        or WPS. Final acceptance should still be checked in the user's WPS.
+        """
+
+        soffice = shutil.which("soffice") or "/Applications/LibreOffice.app/Contents/MacOS/soffice"
+        if not soffice or not Path(soffice).exists():
+            renderer.update(
+                script="libreoffice-headless",
+                message="LibreOffice (soffice) was not found; preview rendering skipped. Open the PPTX in WPS to inspect visually.",
+            )
+            return renderer
+
+        with tempfile.TemporaryDirectory(prefix=".render-", dir=self.out_dir) as render_root:
+            render_dir = Path(render_root)
+            command = [
+                str(soffice),
+                "--headless",
+                f"-env:UserInstallation=file://{render_dir / 'lo-profile'}",
+                "--convert-to",
+                "png",
+                "--outdir",
+                str(render_dir),
+                str(pptx_path),
+            ]
+            try:
+                completed = subprocess.run(
+                    command,
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=240,
+                )
+            except subprocess.TimeoutExpired:
+                renderer.update(
+                    script="libreoffice-headless",
+                    status="failed",
+                    message="LibreOffice render timed out.",
+                )
+                return renderer
+            except OSError as exc:
+                renderer.update(
+                    script="libreoffice-headless",
+                    status="failed",
+                    message=f"Could not start LibreOffice: {exc}",
+                )
+                return renderer
+
+            renderer["exit_code"] = completed.returncode
+            stderr_lines = [
+                line
+                for line in (completed.stderr or "").splitlines()
+                if line.strip() and not line.startswith("Fontconfig warning:")
+            ]
+            if stderr_lines:
+                renderer["stderr"] = "\n".join(stderr_lines)[:400]
+            if completed.returncode != 0:
+                renderer.update(
+                    script="libreoffice-headless",
+                    status="failed",
+                    message="LibreOffice render returned a non-zero exit code.",
+                )
+                return renderer
+            # LibreOffice converts a PPTX to PNG by rendering its first slide,
+            # named after the source file. This skill builds one page at a time.
+            rendered = next(render_dir.glob("*.png"), None)
+            if rendered is None:
+                renderer.update(
+                    script="libreoffice-headless",
+                    status="failed",
+                    message="LibreOffice succeeded but produced no PNG.",
+                )
+                return renderer
+            shutil.copyfile(rendered, preview_path)
+            verification = {
+                "renderer": "LibreOffice headless",
+                "note": "Layout preview only; not Office-verified rendering. Fonts and line breaks can differ in PowerPoint/WPS.",
+                "source": str(pptx_path),
+            }
+            verification_path.write_text(
+                json.dumps(verification, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            renderer.update(
+                script="libreoffice-headless",
+                status="libreoffice-ok",
+                verification=str(verification_path),
+                message="Preview rendered by LibreOffice; final acceptance should still be checked in WPS.",
+            )
+        return renderer
+
     def finish(self, render: bool = True) -> dict[str, Any]:
         """Save deliverables and optionally render with native Windows Office.
 
@@ -549,7 +665,7 @@ class Deck:
         pptx_path = deliverables / "editable.pptx"
         report_path = deliverables / "editability-report.json"
         preview_path = deliverables / "preview.png"
-        verification_path = deliverables / "powerpoint-verification.json"
+        verification_path = deliverables / "render-verification.json"
         for stale in (preview_path, verification_path):
             if stale.exists():
                 stale.unlink()
@@ -577,7 +693,7 @@ class Deck:
             "objects": self.object_count,
             "text_warnings": list(self._text_warnings),
             "renderer": renderer,
-            "rendered": renderer["status"] == "ok",
+            "rendered": renderer["status"] in {"ok", "libreoffice-ok"},
         }
 
 

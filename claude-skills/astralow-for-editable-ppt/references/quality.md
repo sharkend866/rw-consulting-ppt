@@ -16,14 +16,14 @@
 [{"old":"当前标题","new":"编辑测试标题"},{"old":"12.5","new":"13.5"}]
 ```
 
-运行随附工具：
+运行随附工具（macOS 版，替代原版 Windows PowerShell 脚本）：
 
-```powershell
-powershell.exe -NoProfile -File "<skill>/scripts/verify-edit.ps1" -DeckPath "<final.pptx>" -OutputDirectory "<verification-output>" -EditsPath "<edits.json>"
+```sh
+<venv>/bin/python "<skill>/scripts/verify_edit.py" --deck "<final.pptx>" --out "<verification-output>" --edits "<edits.json>"
 ```
 
 测试只修改独立副本，保存、重开后核对修改是否保留，并核对源文件哈希未改变。只交付未被测试修改的原文件。报告失败或替换规则未匹配时，不能宣称编辑验证通过。
 
-这项验证覆盖选中的文字修改，不证明所有对象都可编辑，也不验证图表数据系列、公式或图片内部路径。按用户指定的编辑要求补做对应操作。复杂视觉保留为裁图时，明确内部不可编辑。
+**边界（本移植版）**：这是 python-pptx 回路验证，证明文本对象可编辑、文件可正常读写，**不是 Office 渲染验证**。它不验证 PowerPoint/WPS 中的实际渲染效果，也不验证图表数据系列、公式或图片内部路径。按用户指定的编辑要求补做对应操作。复杂视觉保留为裁图时，明确内部不可编辑。
 
-测试工具需要 Windows PowerPoint；无法运行时说明验证缺口。它不关闭用户的整个 PowerPoint 应用。
+原版测试工具需要 Windows PowerPoint；本移植版不依赖它，改由 LibreOffice 渲染预览 + 用户 WPS 人工验收补足验证缺口。
