@@ -1,4 +1,10 @@
+# Python 依赖：pip install -r requirements.txt
 python-pptx>=1.0.2
 Pillow>=12.3.0
 playwright>=1.49.0
 certifi>=2024.8.30
+
+# 非 pip 依赖（requirements.txt 管不到，运行 python check_env.py 一键自检）：
+# - Google Chrome：render_slide.py 截图渲染必需
+# - LibreOffice（可选）：image-to-editable-ppt 渲染预览，macOS: brew install --cask libreoffice
+# - 豆包 API Key（可选）：照片级配图，存至 ~/.config/rw-consulting-ppt/ark-api-key（chmod 600）

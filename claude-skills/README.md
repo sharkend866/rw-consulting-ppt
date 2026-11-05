@@ -18,8 +18,8 @@
 ## 依赖
 
 ```sh
-pip install -r requirements.txt          # 根目录 requirements.txt（python-pptx、Pillow）
-pip install playwright                    # 渲染用，用系统 Chrome，无需下载浏览器
+python check_env.py                       # 仓库根目录：一键自检全部依赖（含 Chrome/LibreOffice/配图 key/技能软链）
+pip install -r requirements.txt           # 仓库根目录 requirements.txt（python-pptx、Pillow、playwright、certifi）
 brew install --cask libreoffice           # image-to-editable-ppt 渲染预览（可选，没装则 finish 会跳过渲染）
 ```
 

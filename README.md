@@ -78,6 +78,12 @@ Windows PowerShell 用户把目标目录换成 `$env:USERPROFILE\.claude\skills\
 
 ## 运行依赖
 
+先跑一遍自检脚本，所有依赖（含 Chrome、LibreOffice、配图 key、技能安装状态）一目了然：
+
+```sh
+python check_env.py
+```
+
 ```sh
 python -m pip install -r requirements.txt   # python-pptx、Pillow、playwright、certifi
 ```
