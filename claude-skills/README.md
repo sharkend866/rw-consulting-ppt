@@ -20,21 +20,21 @@
 ```sh
 pip install -r requirements.txt          # 根目录 requirements.txt（python-pptx、Pillow）
 pip install playwright                    # 渲染用，用系统 Chrome，无需下载浏览器
-brew install --cask libreoffice           # astralow 渲染预览（可选，没装则 finish 会跳过渲染）
+brew install --cask libreoffice           # image-to-editable-ppt 渲染预览（可选，没装则 finish 会跳过渲染）
 ```
 
 ## 安装
 
 ```sh
 mkdir -p ~/.claude/skills
-ln -sfn "$PWD/claude-skills/astralow-for-editable-ppt" ~/.claude/skills/astralow-for-editable-ppt
+ln -sfn "$PWD/claude-skills/image-to-editable-ppt" ~/.claude/skills/image-to-editable-ppt
 ln -sfn "$PWD/claude-skills/rw-consulting-ppt" ~/.claude/skills/rw-consulting-ppt
 ```
 
 ## 使用
 
 - 生成图片版咨询 deck：`/rw-consulting-ppt`
-- 图片转可编辑 PPT：`/astralow-for-editable-ppt`
+- 图片转可编辑 PPT：`/image-to-editable-ppt`
 
 ## 照片级配图配置（可选）
 
@@ -59,6 +59,6 @@ export IMAGE_API_MODEL="<模型名>"
 
 ## 验证状态（2026-11-05 冒烟测试）
 
-- astralow：源图 → Deck 重建 → LibreOffice 渲染 `libreoffice-ok` → 编辑回路验证 passed ✅
+- image-to-editable-ppt：源图 → Deck 重建 → LibreOffice 渲染 `libreoffice-ok` → 编辑回路验证 passed ✅
 - rw：样页 HTML → 3840×2160 PNG → 打包 `slides=1 pictures=1 editableTextBodies=0` ✅
 - 豆包配图：Seedream 生成成功、`watermark: false` 无水印（用户已目检确认）✅

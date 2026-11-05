@@ -10,11 +10,11 @@
 ```bash
 mkdir -p ~/.claude/skills
 ln -sfn "$PWD/claude-skills/rw-consulting-ppt" ~/.claude/skills/rw-consulting-ppt
-ln -sfn "$PWD/claude-skills/astralow-for-editable-ppt" ~/.claude/skills/astralow-for-editable-ppt
+ln -sfn "$PWD/claude-skills/image-to-editable-ppt" ~/.claude/skills/image-to-editable-ppt
 ```
 
 3. 安装依赖：`pip install -r requirements.txt`；渲染预览需要 LibreOffice（可选）。
-4. 调用方式从 `$skill-name` 变为 `/skill-name`（`/rw-consulting-ppt`、`/astralow-for-editable-ppt`）。当前会话未识别时新开对话。
+4. 调用方式从 `$skill-name` 变为 `/skill-name`（`/rw-consulting-ppt`、`/image-to-editable-ppt`，后者原名 astralow-for-editable-ppt）。当前会话未识别时新开对话。
 
 ## 行为差异（需知）
 

@@ -21,7 +21,7 @@ Use this skill to convert bullet points, research notes, and rough outlines into
 - **不**用 Python/Pillow/SVG 文件画幻灯片页面（SVG 只允许内联在 HTML 里作为 proof object）。
 - **不**把裸 HTML 线框（细边框卡片、通用图标、无主导 proof object）当成品交付——HTML 必须承载咨询 exhibit 的完整视觉系统。
 - 照片级配图是可选环节：用户配置图片 API 后用 `scripts/gen_image.py` 生成；未配置时禁止用占位图冒充。
-- 如果用户要求可编辑 PPTX，说明本 Skill 是图片版，改用同仓库的 `astralow-for-editable-ppt` 逐页转换。
+- 如果用户要求可编辑 PPTX，说明本 Skill 是图片版，改用同仓库的 `image-to-editable-ppt` 逐页转换。
 
 ### Generation Backend Lock
 

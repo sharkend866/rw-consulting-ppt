@@ -3,6 +3,11 @@
 本文件从 Claude Code 移植版开始记录；更早的 Codex 原版历史见上游仓库
 <https://github.com/Pikapika260214/rw-consulting-ppt> 及本仓库 git 历史（`git log -- skills/`）。
 
+## v1.1 — 技能重命名（2026-11-05）
+
+- `astralow-for-editable-ppt` 更名为 `image-to-editable-ppt`：原名为 Codex 的 Astra low 模型优化而设，对 Claude Code 用户无意义，新名按功能直白命名。
+- 同步更新：目录名、SKILL.md frontmatter、`~/.claude/skills/` 软链、README / UPGRADE / examples 及各 skill 内引用。
+
 ## v1.0 — Claude Code 移植版（2026-11-05）
 
 ### rw-consulting-ppt
@@ -13,7 +18,7 @@
 - 复用原版 `package_image_deck.py` 打包 image-only PPTX。
 - 配图水印约定写入 SKILL.md，对所有使用者强制。
 
-### astralow-for-editable-ppt
+### image-to-editable-ppt（v1.0 时原名 astralow-for-editable-ppt）
 
 - `editable_ppt.py` 增加 macOS 字体映射与 LibreOffice headless 渲染分支（`libreoffice-ok` 状态）。
 - 新增 `verify_edit.py`：python-pptx 编辑回路验证，替代原版 Windows PowerShell 脚本。

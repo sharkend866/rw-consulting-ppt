@@ -7,9 +7,9 @@
 两个互相独立的 Claude Code Skills：
 
 - `rw-consulting-ppt`：把行业报告、会议纪要、访谈笔记和半成品 bullet，转成 `proof-object-first` 的图片版咨询 PPT。
-- `astralow-for-editable-ppt`：把单张 slide 图片、PNG、截图，或图片型 PPT 的页面，转换成更可编辑的 PowerPoint。
+- `image-to-editable-ppt`（原名 image-to-editable-ppt-for-editable-ppt）：把单张 slide 图片、PNG、截图，或图片型 PPT 的页面，转换成更可编辑的 PowerPoint。
 
-两者平级放在 `claude-skills/` 目录下。`rw-consulting-ppt` 默认交付 PNG + `image-only PPTX`；需要后续编辑时用 `astralow-for-editable-ppt` 逐页转换；多页结果另行合并并检查。
+两者平级放在 `claude-skills/` 目录下。`rw-consulting-ppt` 默认交付 PNG + `image-only PPTX`；需要后续编辑时用 `image-to-editable-ppt` 逐页转换；多页结果另行合并并检查。
 
 ## 与 Codex 原版的区别
 
@@ -67,11 +67,11 @@ RW Consulting PPT Skill 的重点不是"美化 PPT"，而是把粗糙材料先�
 # macOS / Linux：软链（推荐，仓库更新即时生效）
 mkdir -p ~/.claude/skills
 ln -sfn "$PWD/claude-skills/rw-consulting-ppt" ~/.claude/skills/rw-consulting-ppt
-ln -sfn "$PWD/claude-skills/astralow-for-editable-ppt" ~/.claude/skills/astralow-for-editable-ppt
+ln -sfn "$PWD/claude-skills/image-to-editable-ppt" ~/.claude/skills/image-to-editable-ppt
 
 # 或复制
 cp -R ./claude-skills/rw-consulting-ppt/. ~/.claude/skills/rw-consulting-ppt/
-cp -R ./claude-skills/astralow-for-editable-ppt/. ~/.claude/skills/astralow-for-editable-ppt/
+cp -R ./claude-skills/image-to-editable-ppt/. ~/.claude/skills/image-to-editable-ppt/
 ```
 
 Windows PowerShell 用户把目标目录换成 `$env:USERPROFILE\.claude\skills\`。
@@ -83,7 +83,7 @@ python -m pip install -r requirements.txt   # python-pptx、Pillow、playwright�
 ```
 
 - **Python 3.10+**；渲染走**系统 Google Chrome**，无需下载 Chromium。
-- **LibreOffice**（可选）：`brew install --cask libreoffice`，用于 astralow 的自动渲染预览；没装则跳过预览，手动用 WPS 验收。
+- **LibreOffice**（可选）：`brew install --cask libreoffice`，用于 image-to-editable-ppt 的自动渲染预览；没装则跳过预览，手动用 WPS 验收。
 - 实际 Office 渲染与编辑验证需要 Windows 桌面 PowerPoint；macOS 用 LibreOffice 预览 + **WPS 人工验收**，交付说明中标注"未经 Office 验证"。
 - 模型不绑定：Claude Code 当前会话模型即可（如 DeepSeek），skill 不会自动切换模型。
 
@@ -116,7 +116,7 @@ export IMAGE_API_KEY="<火山方舟 API Key>"   # endpoint 与模型 ID 已内�
 转换单页图片为可编辑 PPTX：
 
 ```text
-使用 /astralow-for-editable-ppt 将这张图转成可编辑 PPT。
+使用 /image-to-editable-ppt 将这张图转成可编辑 PPT。
 保留原文、布局和视觉关系，输出 PPTX 与实际渲染预览，说明哪些局部仍是图片。
 ```
 
@@ -135,7 +135,7 @@ export IMAGE_API_KEY="<火山方舟 API Key>"   # endpoint 与模型 ID 已内�
 - 每页 = 一张完整 16:9 图片（HTML 全页设计 → 截图 → PNG）。
 - 每页用 `proof object` 承载论证（漏斗、路径图、玩家格局、能力栈、风险桥……），而不是堆 bullet。
 - 先出 1-2 页样页确认风格、密度和表达逻辑，通过后再批量。
-- 需要 PPTX 时机械打包成 `image-only PPTX`；关键页可再用 astralow 逐页转可编辑。
+- 需要 PPTX 时机械打包成 `image-only PPTX`；关键页可再用 image-to-editable-ppt 逐页转可编辑。
 
 它不会做：
 
@@ -154,7 +154,7 @@ export IMAGE_API_KEY="<火山方舟 API Key>"   # endpoint 与模型 ID 已内�
 4. **Sample brief**：为 1-2 页代表性页面写详细 brief。
 5. **Sample gate**：先渲染样页，通过后再批量；样页像普通模板/信息太空/结论太多就改 brief，不直接批量。
 6. **Batch generation and packaging**：批量渲染剩余页面，用 `scripts/package_image_deck.py` 打包 `image-only PPTX`。
-7. **Selective editable conversion**：关键页交给 astralow 逐页转可编辑，多页另行合并并检查。
+7. **Selective editable conversion**：关键页交给 image-to-editable-ppt 逐页转可编辑，多页另行合并并检查。
 
 ## 输出物
 
@@ -200,7 +200,7 @@ claude-skills/
       render_slide.py           # HTML -> 16:9 PNG（Playwright + 系统 Chrome）
       package_image_deck.py     # PNG -> image-only PPTX
       gen_image.py              # 豆包 Seedream 配图（默认无水印）
-  astralow-for-editable-ppt/
+  image-to-editable-ppt/
     SKILL.md
     references/                 # 工具接口、质量检查
     scripts/
@@ -211,7 +211,7 @@ claude-skills/
 
 ## FAQ
 
-**为什么默认不是 editable PPTX？** `rw-consulting-ppt` 先生成完整咨询页图像，默认 PPTX 每页是一张图片；需要编辑时用 `astralow-for-editable-ppt` 转换选中页面。
+**为什么默认不是 editable PPTX？** `rw-consulting-ppt` 先生成完整咨询页图像，默认 PPTX 每页是一张图片；需要编辑时用 `image-to-editable-ppt` 转换选中页面。
 
 **生成的 PPTX 还能修改吗？** 图片版 PPTX 可整体移动或替换页面图片；转换后原生文本框、形状可编辑，局部裁图内部不可逐对象编辑。
 
@@ -221,7 +221,7 @@ claude-skills/
 
 **可以用于英文 deck 吗？** 可以，默认示例和质量规则以中文管理层报告页为主，英文 deck 保留相同原则。
 
-**"渲染验证"可信吗？** astralow 的预览由 LibreOffice headless 渲染，是排版参考，**不等于 Office 验证**；最终验收请用 WPS/PowerPoint 人工打开确认。
+**"渲染验证"可信吗？** image-to-editable-ppt 的预览由 LibreOffice headless 渲染，是排版参考，**不等于 Office 验证**；最终验收请用 WPS/PowerPoint 人工打开确认。
 
 ## 交流与联系作者
 
